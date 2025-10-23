@@ -38,9 +38,12 @@ bool test_segment_grapheme()
                 if (line32[i] == 0x00D7 || line32[i] == 0x00F7)
                     i++;
 
-                uint32_t c = (uint32_t)strtoul(una::utf32to8(line32.c_str()+i).c_str(), 0, 16);
+                std::string u8_line = una::utf32to8(line32.c_str()+i);
+                const char* begptr = u8_line.c_str();
+                char* endptr = nullptr;
+                uint32_t c = (uint32_t)strtoul(begptr, &endptr, 16);
 
-                if (c != 0)
+                if (begptr != endptr)
                 {
                     string_without_breaks += std::u32string{c};
                     string_with_breaks += std::u32string{c};
@@ -180,9 +183,12 @@ bool test_segment_word()
                 if (line32[i] == 0x00D7 || line32[i] == 0x00F7)
                     i++;
 
-                uint32_t c = (uint32_t)strtoul(una::utf32to8(line32.c_str()+i).c_str(), 0, 16);
+                std::string u8_line = una::utf32to8(line32.c_str()+i);
+                const char* begptr = u8_line.c_str();
+                char* endptr = nullptr;
+                uint32_t c = (uint32_t)strtoul(begptr, &endptr, 16);
 
-                if (c != 0)
+                if (begptr != endptr)
                 {
                     string_without_breaks += std::u32string{c};
                     string_with_breaks += std::u32string{c};

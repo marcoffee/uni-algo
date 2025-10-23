@@ -25,15 +25,15 @@ uaix_static type_codept stages(type_codept c, const T1& stage1, const T2& stage2
     uaix_assert(c <= 0x10FFFF);
 #endif
 
-    return stage2[(stage1[c >> 7] << 7) + (c & 127)];
-    // The same as: stage2[stage1[c / 128] * 128 + c % 128]
+    return stage2[(stage1[c >> 8] << 8) + (c & 255)];
+    // The same as: stage2[stage1[c / 256] * 256 + c % 256]
 }
 #else
 // This is the only complex macro that is used in this library and only when compiled in C mode
 // https://gcc.gnu.org/onlinedocs/cpp/Duplication-of-Side-Effects.html#Duplication-of-Side-Effects
-#define stages(c, stage1, stage2) (stage2[(size_t)(stage1[(c) >> 7] << 7) + ((c) & 127)]) /* UNSAFE */
+#define stages(c, stage1, stage2) (stage2[(size_t)(stage1[(c) >> 8] << 8) + ((c) & 255)]) /* UNSAFE */
 // REMINDER:
-//#define stages(c, stage1, stage2) /*__extension__*/({ __typeof__(c) c_ = (c); (stage2[(size_t)(stage1[c_ >> 7] << 7) + (c_ & 127)]); })
+//#define stages(c, stage1, stage2) /*__extension__*/({ __typeof__(c) c_ = (c); (stage2[(size_t)(stage1[c_ >> 8] << 8) + (c_ & 255)]); })
 #endif
 
 UNI_ALGO_IMPL_NAMESPACE_END

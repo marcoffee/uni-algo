@@ -13,7 +13,7 @@
 // This header will be added to all generated files
 const std::string gen_header =
         "// GENERATED. DO NOT EDIT.\n\n"
-        "// Unicode 15.1.0\n\n";
+        "// Unicode 17.0.0\n\n";
 
 // How to use: just copy paste this file into your Hello World or whatever and download Unicode data files.
 // Check generator() function at the end of the file for a list of the files that are needed for the generator.
@@ -88,7 +88,7 @@ static void new_generator_output(const std::string& file1, const std::string& fi
     std::vector<std::vector<uint32_t>> vec2; // Stage 2 table with blocks of data
 
     // Use block size 128 for all tables. I experimented with block size 256 and tables are a bit bigger for most data.
-    const uint32_t block_size = 128;
+    const uint32_t block_size = 256;
     static_assert((0x10FFFF + 1) % block_size == 0);
 
     for (uint32_t i = 0; i <= maxmap;)
