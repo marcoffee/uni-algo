@@ -285,8 +285,14 @@ test_constexpr bool test_script()
     TESTX(una::codepoint::get_script(0x1E6C0) == una::locale::script{"Tayo"}); // Tai_Yo
     TESTX(una::codepoint::get_script(0x11DB0) == una::locale::script{"Tols"}); // Tolong_Siki
 
-    // Number of scripts in Unicode 17.0.0: 172 + 3 special scripts: Unknown (Zzzz), Common (Zyyy), Inherited (Zinh)
-    //static_assert(una::detail::stage3_script.size() == 172 + 3);
+    // Unicode 18.0.0
+
+    TESTX(una::codepoint::get_script(0x18E00) == una::locale::script{"Jurc"}); // Jurchen
+    TESTX(una::codepoint::get_script(0x125A8) == una::locale::script{"Pcun"}); // Proto_Cuneiform
+    TESTX(una::codepoint::get_script(0x3D000) == una::locale::script{"Seal"}); // Seal
+
+    // Number of scripts in Unicode 18.0.0: 175 + 3 special scripts: Unknown (Zzzz), Common (Zyyy), Inherited (Zinh)
+    //static_assert(una::detail::stage3_script.size() == 175 + 3);
 
     return true;
 }

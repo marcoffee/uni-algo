@@ -304,6 +304,7 @@ int main7()
 #else
     std::cout << "SKIP: Text Segmentation with test files" << '\n';
 #endif
+    STATIC_TESTX(test_segment_grapheme_corner_cases());
     STATIC_TESTX(test_segment_word_corner_cases());
     STATIC_TESTX(test_segment_word_prop());
     STATIC_TESTX(test_segment_bidi());

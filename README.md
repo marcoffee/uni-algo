@@ -1,5 +1,5 @@
-[![Version](https://img.shields.io/badge/Version-1.2.0-blue)](https://github.com/uni-algo/uni-algo/releases/tag/v1.2.0)
-[![Unicode](https://img.shields.io/badge/Unicode-17.0.0-blue)](https://www.unicode.org/versions/Unicode17.0.0/)
+[![Version](https://img.shields.io/badge/Version-1.5.0-blue)](https://github.com/uni-algo/uni-algo/releases/tag/v1.5.0)
+[![Unicode](https://img.shields.io/badge/Unicode-18.0.0-blue)](https://www.unicode.org/versions/Unicode18.0.0/)
 [![Language](https://img.shields.io/badge/C%2B%2B-17/20/23-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B#Standardization)
 [![License](https://img.shields.io/badge/License-Unlicense/MIT-darkorchid.svg)](https://opensource.org/licenses/MIT)
 [![Linux](https://github.com/uni-algo/uni-algo/actions/workflows/linux.yml/badge.svg?branch=main)](https://github.com/uni-algo/uni-algo/actions/workflows/linux.yml)

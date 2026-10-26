@@ -270,6 +270,88 @@ bool test_segment_word()
     return true;
 }
 
+test_constexpr std::size_t test_segment_count_graphemes(std::string_view str)
+{
+    auto view = una::ranges::grapheme::utf8_view{str};
+
+    return static_cast<std::size_t>(std::distance(view.begin(), view.end()));
+}
+
+test_constexpr std::size_t test_segment_count_graphemes_rev(std::string_view str)
+{
+    auto view = una::ranges::grapheme::utf8_view{str};
+
+    std::size_t count = 0;
+    for (auto it = view.end(); it != view.begin(); --it)
+        ++count;
+
+    return count;
+}
+
+test_constexpr std::size_t test_segment_count_graphemes16(std::u16string_view str)
+{
+    auto view = una::ranges::grapheme::utf16_view{str};
+
+    return static_cast<std::size_t>(std::distance(view.begin(), view.end()));
+}
+
+test_constexpr std::size_t test_segment_count_graphemes16_rev(std::u16string_view str)
+{
+    auto view = una::ranges::grapheme::utf16_view{str};
+
+    std::size_t count = 0;
+    for (auto it = view.end(); it != view.begin(); --it)
+        ++count;
+
+    return count;
+}
+
+test_constexpr bool test_segment_grapheme_corner_cases()
+{
+    // Unicode 18.0.0 GB9c: \p{InCB=Linker} \p{InCB=Extend}* × \p{InCB=Consonant}
+    // No InCB=Consonant is needed before the Linker anymore.
+    // The cases with Extended_Pictographic are not in GraphemeBreakTest.txt,
+    // a Linker is also Extend so GB11 and GB9c can be in progress at the same time.
+
+    // VIRAMA + KA
+    TESTX(test_segment_count_graphemes("\xE0\xA5\x8D\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes_rev("\xE0\xA5\x8D\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes16(u"\x094D\x0915") == 1);
+    TESTX(test_segment_count_graphemes16_rev(u"\x094D\x0915") == 1);
+    // VIRAMA + a + KA
+    TESTX(test_segment_count_graphemes("\xE0\xA5\x8D\x61\xE0\xA4\x95") == 3);
+    TESTX(test_segment_count_graphemes_rev("\xE0\xA5\x8D\x61\xE0\xA4\x95") == 3);
+    TESTX(test_segment_count_graphemes16(u"\x094D\x0061\x0915") == 3);
+    TESTX(test_segment_count_graphemes16_rev(u"\x094D\x0061\x0915") == 3);
+    // GRINNING FACE + VIRAMA + KA
+    TESTX(test_segment_count_graphemes("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes_rev("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes16(u"\xD83D\xDE00\x094D\x0915") == 1);
+    TESTX(test_segment_count_graphemes16_rev(u"\xD83D\xDE00\x094D\x0915") == 1);
+    // GRINNING FACE + VIRAMA + ZWJ + KA
+    TESTX(test_segment_count_graphemes("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE2\x80\x8D\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes_rev("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE2\x80\x8D\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes16(u"\xD83D\xDE00\x094D\x200D\x0915") == 1);
+    TESTX(test_segment_count_graphemes16_rev(u"\xD83D\xDE00\x094D\x200D\x0915") == 1);
+    // GRINNING FACE + VIRAMA + ZWJ + GRINNING FACE
+    TESTX(test_segment_count_graphemes("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE2\x80\x8D\xF0\x9F\x98\x80") == 1);
+    TESTX(test_segment_count_graphemes_rev("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE2\x80\x8D\xF0\x9F\x98\x80") == 1);
+    TESTX(test_segment_count_graphemes16(u"\xD83D\xDE00\x094D\x200D\xD83D\xDE00") == 1);
+    TESTX(test_segment_count_graphemes16_rev(u"\xD83D\xDE00\x094D\x200D\xD83D\xDE00") == 1);
+    // GRINNING FACE + VIRAMA + COMBINING DIAERESIS (InCB=Extend) + KA
+    TESTX(test_segment_count_graphemes("\xF0\x9F\x98\x80\xE0\xA5\x8D\xCC\x88\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes_rev("\xF0\x9F\x98\x80\xE0\xA5\x8D\xCC\x88\xE0\xA4\x95") == 1);
+    TESTX(test_segment_count_graphemes16(u"\xD83D\xDE00\x094D\x0308\x0915") == 1);
+    TESTX(test_segment_count_graphemes16_rev(u"\xD83D\xDE00\x094D\x0308\x0915") == 1);
+    // GRINNING FACE + VIRAMA + ZWNJ (Extend but no InCB) + KA
+    TESTX(test_segment_count_graphemes("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE2\x80\x8C\xE0\xA4\x95") == 2);
+    TESTX(test_segment_count_graphemes_rev("\xF0\x9F\x98\x80\xE0\xA5\x8D\xE2\x80\x8C\xE0\xA4\x95") == 2);
+    TESTX(test_segment_count_graphemes16(u"\xD83D\xDE00\x094D\x200C\x0915") == 2);
+    TESTX(test_segment_count_graphemes16_rev(u"\xD83D\xDE00\x094D\x200C\x0915") == 2);
+
+    return true;
+}
+
 test_constexpr std::size_t test_segment_count_words(std::string_view str)
 {
     auto view = una::ranges::word::utf8_view{str};

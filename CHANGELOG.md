@@ -8,6 +8,9 @@ See commit history between tags for details.
 - Updated the Unicode data generator for Unicode 16 script/property table growth and reordered ScriptExtensions.txt data.
 - Fixed NFC/NFKC normalization for Unicode 16 Gurung Khema composition sequences.
 - Updated to Unicode 17.0.0
+- Updated to Unicode 18.0.0
+- Added support for full case mappings and full case folding above U+FFFF (U+1DF95 in Unicode 18.0.0).
+- Updated grapheme cluster rule GB9c to Unicode 18.0.0 (InCB=Consonant is no longer required before InCB=Linker).
 
 ## [v1.2.0](https://github.com/uni-algo/uni-algo/tree/v1.2.0) (2023-12-11)
 - Fixed lifetime issue with ranges in some cases (ABI change) ([#35](https://github.com/uni-algo/uni-algo/pull/35)). Thanks [@unixod](https://github.com/unixod).

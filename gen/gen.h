@@ -2,6 +2,7 @@
  * License: Public Domain or MIT - choose whatever you want.
  * See notice at the end of this file. */
 
+#include <cstdint>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -13,7 +14,7 @@
 // This header will be added to all generated files
 const std::string gen_header =
         "// GENERATED. DO NOT EDIT.\n\n"
-        "// Unicode 17.0.0\n\n";
+        "// Unicode 18.0.0\n\n";
 
 // How to use: just copy paste this file into your Hello World or whatever and download Unicode data files.
 // Check generator() function at the end of the file for a list of the files that are needed for the generator.
@@ -64,6 +65,11 @@ const std::string gen_header =
 // The format is unreadable and for tests or when comparing 2 data files are needed the format can be disabled.
 // Note that it affects only the size of the generated files but does not affect the size of the data.
 const bool COMPACT = true;
+
+// Special casing tables (full case folding and full case mapping) cover only U+0000 - U+1FFFF.
+// Unicode 18.0.0 added the first special casing above U+FFFF (U+1DF95).
+// Must match impl_max_special_case_codept in impl_case.h
+const uint32_t SPECIAL_CASING_MAXMAP = 0x1FFFF;
 
 static void new_generator_output(const std::string& file1, const std::string& file2,
                                  int stage1_bits, int stage2_bits, bool with_null,
@@ -364,16 +370,18 @@ static void new_generator_casefolding_full(const std::string& file1, const std::
     std::string line;
     while (std::getline(input, line))
     {
-        // There should not be cases where code point > 0xFFFF and full (F) case folding
-        ASSERTX(!(line.size() > 15 && line[5] == ';' && line[7] == 'F'));
+        std::size_t semicolon = line.find(';');
 
-        if (line.size() > 15 && line[4] == ';' && line[6] == 'F')
+        if (line.size() > 15 && semicolon != std::string::npos && line.compare(semicolon, 4, "; F;") == 0)
         {
             uint32_t c = (uint32_t)strtoul(line.c_str(), 0, 16);
 
+            // There should not be cases where code point > SPECIAL_CASING_MAXMAP and full (F) case folding
+            ASSERTX(c <= SPECIAL_CASING_MAXMAP);
+
             uint32_t special[3];
             uint32_t number = 0;
-            for (size_t i = 8; i < line.size(); ++i)
+            for (size_t i = semicolon + 4; i < line.size(); ++i)
             {
                 if (line[i] == ';')
                     break;
@@ -392,7 +400,7 @@ static void new_generator_casefolding_full(const std::string& file1, const std::
         }
     }
 
-    new_generator_output(file1, file2, 8, 8, true, map, 0xFFFF);
+    new_generator_output(file1, file2, 8, 8, true, map, SPECIAL_CASING_MAXMAP);
     new_generator_output1(file3, vec);
 }
 
@@ -412,14 +420,16 @@ static void new_generator_special_casing(const std::string& file1, const std::st
     std::string line;
     while (std::getline(input, line))
     {
-        if (line.size() > 15 && line[4] == ';')
+        std::size_t semicolon = line.find(';');
+
+        if (line.size() > 15 && line[0] != '#' && semicolon != std::string::npos)
         {
-            std::string codepoint = line.substr(0, line.find(';'));
+            std::string codepoint = line.substr(0, semicolon);
 
             uint32_t c = (uint32_t)strtoul(codepoint.c_str(), 0, 16);
 
-            // There should not be cases where code point > 0xFFFF
-            ASSERTX(codepoint.size() == 4 && c <= 0xFFFF);
+            // There should not be cases where code point > SPECIAL_CASING_MAXMAP
+            ASSERTX(codepoint.size() >= 4 && c <= SPECIAL_CASING_MAXMAP);
 
 #ifdef GENERATOR_CASEMAP_ESZETT_TAILORED_CASING
             if (c == 0x00DF)
@@ -444,7 +454,8 @@ static void new_generator_special_casing(const std::string& file1, const std::st
             ASSERTX(!result.empty() || condidional);
 
             // Skip conditional and 1 to 1 mapping (this is already in UnicodeData.txt)
-            if (!condidional && result.size() != 4)
+            // 1 to 1 mapping is a single code point so it has no spaces, it can be 4-6 hex digits
+            if (!condidional && result.find(' ') != std::string::npos)
             {
                 uint32_t special[3];
                 uint32_t number = 0;
@@ -467,12 +478,12 @@ static void new_generator_special_casing(const std::string& file1, const std::st
         }
     }
 
-    // In the current version of Unicode (3.2.0 - 17.0.0) there is only 1 special case for lower and we handle it in place
+    // In the current version of Unicode (3.2.0 - 18.0.0) there is only 1 special case for lower and we handle it in place
     // if it will change in the future we have this assert and then we probably should handle lower the same way as upper
     // but probably it will never change.
     ASSERTX(!(column == 1 && (vec.size() / 4 - 1) != 1));
 
-    new_generator_output(file1, file2, 8, 8, true, map, 0xFFFF);
+    new_generator_output(file1, file2, 8, 8, true, map, SPECIAL_CASING_MAXMAP);
     new_generator_output1(file3, vec);
 }
 
@@ -1957,7 +1968,7 @@ void new_generator_script(const std::string& file1, const std::string& file2, co
 
     // NOTE: The size of vec must be the number of scripts in the current
     // Unicode version + 3 special scripts: Unknown (Zzzz), Common (Zyyy), Inherited (Zinh)
-    // For example for Unicode 17.0.0 it's 175 (172 scripts + 3 special scripts)
+    // For example for Unicode 18.0.0 it's 178 (175 scripts + 3 special scripts)
 
     new_generator_output(file1, file2, 16, 8, true, map); // stage1/2
     new_generator_output2(file3, vec, 32); // stage3

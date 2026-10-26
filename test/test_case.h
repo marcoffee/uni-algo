@@ -220,6 +220,16 @@ test_constexpr bool test_case_upper_lower_fold()
 
     TESTX(una::cases::to_uppercase_utf16(u"\x1F80") == u"\x1F08\x0399");
     TESTX(una::cases::to_uppercase_utf16(u"\x1F88") == u"\x1F08\x0399");
+
+    TESTX(una::cases::to_uppercase_utf8("\xF0\x9D\xBE\x95") == "SS");
+    TESTX(una::cases::to_casefold_utf8("\xF0\x9D\xBE\x95") == "ss");
+    TESTX(una::cases::to_lowercase_utf8("\xF0\x9D\xBE\x95") == "\xF0\x9D\xBE\x95");
+    TESTX(una::caseless::compare_utf8("\xF0\x9D\xBE\x95", "SS") == 0);
+
+    TESTX(una::cases::to_uppercase_utf16(u"\xD837\xDF95") == u"SS");
+    TESTX(una::cases::to_casefold_utf16(u"\xD837\xDF95") == u"ss");
+    TESTX(una::cases::to_lowercase_utf16(u"\xD837\xDF95") == u"\xD837\xDF95");
+    TESTX(una::caseless::compare_utf16(u"\xD837\xDF95", u"SS") == 0);
 #endif // UNI_ALGO_DISABLE_FULL_CASE
 
     return true;
@@ -553,6 +563,9 @@ test_constexpr bool test_case_title()
     TESTX(una::cases::to_titlecase_utf16(u"ﬃ") == u"Ffi");
     TESTX(una::cases::to_titlecase_utf16(u"ﬃ ﬁ ﬂ") == u"Ffi Fi Fl");
     TESTX(una::cases::to_titlecase_utf16(u"_ﬃ_ _ﬁ_ _ﬂ_") == u"_Ffi_ _Fi_ _Fl_");
+
+    TESTX(una::cases::to_titlecase_utf8("\xF0\x9D\xBE\x95") == "Ss");
+    TESTX(una::cases::to_titlecase_utf16(u"\xD837\xDF95") == u"Ss");
 
 #endif // UNI_ALGO_DISABLE_FULL_CASE
 

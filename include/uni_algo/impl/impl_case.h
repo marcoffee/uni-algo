@@ -56,6 +56,10 @@ uaix_const type_codept prop_Soft_Dotted      = 1 << 4; // impl_case_locale.h
 uaix_const type_codept prop_CCC_NOT_0        = 1 << 5; // impl_case_locale.h
 uaix_const type_codept prop_CCC_230          = 1 << 6; // impl_case_locale.h
 
+// Special casing data covers only code points up to this value, see SPECIAL_CASING_MAXMAP in gen/gen.h
+// Unicode 18.0.0 added the first special casing above U+FFFF (U+1DF95)
+uaix_const type_codept impl_max_special_case_codept = 0x1FFFF; // tag_unicode_unstable_value
+
 struct case_special_buffer
 {
     uaix_array(type_codept, cps, impl_max_case_expand);
@@ -123,7 +127,7 @@ uaix_static type_codept stages_case_prop(type_codept c)
 uaix_always_inline
 uaix_static size_t stages_special_fold(type_codept c, struct case_special_buffer* const buffer)
 {
-    if (c <= 0xFFFF)
+    if (c <= impl_max_special_case_codept)
     {
         const size_t n = stages(c, stage1_special_fold, stage2_special_fold);
         buffer->cps[0] = stage3_special_fold[n][1];
@@ -139,7 +143,7 @@ uaix_static bool stages_special_fold_check(type_codept c)
 {
     // This function itself is optimization
 
-    if (c <= 0xFFFF)
+    if (c <= impl_max_special_case_codept)
     {
         const size_t n = stages(c, stage1_special_fold, stage2_special_fold);
         return n ? true : false;
@@ -150,7 +154,7 @@ uaix_static bool stages_special_fold_check(type_codept c)
 uaix_always_inline
 uaix_static size_t stages_special_upper(type_codept c, struct case_special_buffer* const buffer)
 {
-    if (c <= 0xFFFF)
+    if (c <= impl_max_special_case_codept)
     {
         const size_t n = stages(c, stage1_special_upper, stage2_special_upper);
         buffer->cps[0] = stage3_special_upper[n][1];
@@ -166,7 +170,7 @@ uaix_static bool stages_special_upper_check(type_codept c)
 {
     // This function itself is optimization
 
-    if (c <= 0xFFFF)
+    if (c <= impl_max_special_case_codept)
     {
         const size_t n = stages(c, stage1_special_upper, stage2_special_upper);
         return n ? true : false;
@@ -179,7 +183,7 @@ uaix_static bool stages_special_upper_check(type_codept c)
 uaix_always_inline
 uaix_static size_t stages_special_title(type_codept c, struct case_special_buffer* const buffer)
 {
-    if (c <= 0xFFFF)
+    if (c <= impl_max_special_case_codept)
     {
         const size_t n = stages(c, stage1_special_title, stage2_special_title);
         buffer->cps[0] = stage3_special_title[n][1];
@@ -195,7 +199,7 @@ uaix_static bool stages_special_title_check(type_codept c)
 {
     // This function itself is optimization
 
-    if (c <= 0xFFFF)
+    if (c <= impl_max_special_case_codept)
     {
         const size_t n = stages(c, stage1_special_title, stage2_special_title);
         return n ? true : false;
@@ -1725,7 +1729,7 @@ template<typename it_out_utf32>
 uaix_always_inline_tmpl
 uaix_static size_t impl_case_to_uppercase(type_codept c, it_out_utf32 dst)
 {
-    const size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_upper, stage2_special_upper) : 0;
+    const size_t n = (c <= impl_max_special_case_codept) ? stages(c, stage1_special_upper, stage2_special_upper) : 0;
     if (n)
     {
         *dst++ = stage3_special_upper[n][1];
@@ -1743,7 +1747,7 @@ template<typename it_out_utf32>
 uaix_always_inline_tmpl
 uaix_static size_t impl_case_to_casefold(type_codept c, it_out_utf32 dst)
 {
-    const size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_fold, stage2_special_fold) : 0;
+    const size_t n = (c <= impl_max_special_case_codept) ? stages(c, stage1_special_fold, stage2_special_fold) : 0;
     if (n)
     {
         *dst++ = stage3_special_fold[n][1];
@@ -1762,7 +1766,7 @@ template<typename it_out_utf32>
 uaix_always_inline_tmpl
 uaix_static size_t impl_case_to_titlecase(type_codept c, it_out_utf32 dst)
 {
-    const size_t n = (c <= 0xFFFF) ? stages(c, stage1_special_title, stage2_special_title) : 0;
+    const size_t n = (c <= impl_max_special_case_codept) ? stages(c, stage1_special_title, stage2_special_title) : 0;
     if (n)
     {
         *dst++ = stage3_special_title[n][1];
